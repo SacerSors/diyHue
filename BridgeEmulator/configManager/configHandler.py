@@ -55,8 +55,8 @@ class Config:
 
                 if int(config["swversion"]) < 1949203030:
                     config["swversion"] = "1949203030"
-                if config["apiversion"] != "1.48.0":
-                    config["apiversion"] = "1.48.0"
+                if float(config["apiversion"][:3]) < 1.49:
+                    config["apiversion"] = "1.49.0"
 
                 self.yaml_config["config"] = config
             else:
@@ -65,6 +65,8 @@ class Config:
             if os.path.exists(self.configDir + "/lights.yaml"):
                 lights = _open_yaml(self.configDir + "/lights.yaml")
                 for light, data in lights.items():
+                    if data["modelid"] == "915005106701":
+                        data["modelid"] = "LCX004"
                     data["id_v1"] = light
                     self.yaml_config["lights"][light] = Light(data)
                     #self.yaml_config["groups"]["0"].add_light(self.yaml_config["lights"][light])
@@ -80,15 +82,17 @@ class Config:
                     data["id_v1"] = group
                     if data["type"] == "Entertainment":
                         self.yaml_config["groups"][group] = EntertainmentConfiguration(data)
+                        for light in data["lights"]:
+                            self.yaml_config["groups"][group].add_light(self.yaml_config["lights"][light])
                         if "locations" in data:
                             for light, location in data["locations"].items():
                                 lightObj = self.yaml_config["lights"][light]
                                 self.yaml_config["groups"][group].locations[lightObj] = location
                     else:
                         self.yaml_config["groups"][group] = Group(data)
-                    #   Reference lights objects instead of id's
-                    for light in data["lights"]:
-                        self.yaml_config["groups"][group].add_light(self.yaml_config["lights"][light])
+                        for light in data["lights"]:
+                            self.yaml_config["groups"][group].add_light(self.yaml_config["lights"][light])
+
             #scenes
             if os.path.exists(self.configDir + "/scenes.yaml"):
                 scenes = _open_yaml(self.configDir + "/scenes.yaml")

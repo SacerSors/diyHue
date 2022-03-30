@@ -355,6 +355,9 @@ class ClipV2Resource(Resource):
                                 if "xy" in scene["color"]:
                                     sceneState["xy"] = [
                                         scene["color"]["xy"]["x"], scene["color"]["xy"]["y"]]
+                            if "color_temperature" in scene:
+                                if "mirek" in scene["color_temperature"]:
+                                    sceneState["ct"] = scene["color_temperature"]["mirek"]
                             if "gradient" in scene:
                                 sceneState["gradient"] = scene["gradient"]
                             newObject.lightstates[lightObj] = sceneState
@@ -375,8 +378,7 @@ class ClipV2Resource(Resource):
                         obj = getObject(
                             element["service"]["rtype"], element["service"]["rid"])
                         newObject.add_light(obj)
-                        newObject.locations[obj] = [
-                            element["positions"][0]["x"], element["positions"][0]["y"], element["positions"][0]["z"]]
+                        newObject.locations[obj] = element["positions"]
             bridgeConfig["groups"][new_object_id] = newObject
 
         # return message
@@ -428,7 +430,7 @@ class ClipV2ResourceId(Resource):
         logging.debug(putDict)
         object = getObject(resource, resourceid)
         if resource == "light":
-            object.setVactive2State(putDict)
+            object.setV2State(putDict)
         elif resource == "entertainment_configuration":
             if "action" in putDict:
                 if putDict["action"] == "start":
